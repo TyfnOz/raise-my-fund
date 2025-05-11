@@ -10,7 +10,7 @@ function CreateCampaign() {
   return (
     <section>
       <h1 className='text-2xl font-semibold mb-8 capitalize'>
-        create property
+        create campaign
       </h1>
       <div className='border p-8 rounded-md'>
         <h3 className='text-lg mb-4 font-medium'>General Info</h3>
@@ -20,13 +20,13 @@ function CreateCampaign() {
               name='name'
               type='text'
               label='Name (20 limit)'
-              defaultValue='Cabin in Latvia'
+              defaultValue='I start my campaign'
             />
             <FormInput
               name='tagline'
               type='text '
               label='Tagline (30 limit)'
-              defaultValue='Dream Getaway Awaits You Here!'
+              defaultValue='I raise my fund!'
             />
             {/* price */}
             <PriceInput />
@@ -35,7 +35,7 @@ function CreateCampaign() {
           </div>
           {/* text area / description */}
           <TextAreaInput name='description' labelText='Description (10 - 1000 Words)' />
-          <SubmitButton text='create rental' className='mt-12' />
+          <SubmitButton text='create campaign' className='mt-12' />
         </FormContainer>
       </div>
     </section>
