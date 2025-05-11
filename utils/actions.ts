@@ -4,7 +4,7 @@ import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import { imageSchema, profileSchema, validateWithZodSchema } from './schemas';
+import { campaignSchema, imageSchema, profileSchema, validateWithZodSchema } from './schemas';
 import { uploadImage } from './supabase';
 
 const getAuthUser = async () => {
@@ -127,4 +127,18 @@ export const updateProfileImageAction = async (
   } catch (error) {
     return renderError(error);
   }
+};
+
+export const createCampaignAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  try {
+    const rawData = Object.fromEntries(formData);
+    const validatedFields = validateWithZodSchema(campaignSchema, rawData);
+  } catch (error) {
+    return renderError(error);
+  }
+  redirect('/');
 };
