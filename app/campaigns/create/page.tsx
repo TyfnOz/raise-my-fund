@@ -41,7 +41,7 @@ function CreateCampaign() {
             <CountriesInput />
             <ImageInput />
           </div>
-          <SubmitButton text='create campaign' className='mt-12' />
+          <SubmitButton text='create campaign' className='mt-12 cursor-pointer' />
         </FormContainer>
       </div>
     </section>

@@ -19,7 +19,7 @@ async function ProfilePage() {
                     name={profile.username}
                     action={updateProfileImageAction}
                     text='Update Profile Image'
-                />;
+                />
 
                 <FormContainer action={updateProfileAction}>
                     <div className='grid gap-4 md:grid-cols-2 mt-4 '>
@@ -42,7 +42,7 @@ async function ProfilePage() {
                             defaultValue={profile.username}
                         />
                     </div>
-                    <SubmitButton text='Update Profile' className='mt-8' />
+                    <SubmitButton text='Update Profile' className='mt-8 cursor-pointer' />
                 </FormContainer>
             </div>
         </section>
