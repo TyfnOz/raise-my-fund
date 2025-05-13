@@ -12,7 +12,7 @@ const name = 'category';
 function CategoriesInput({ defaultValue }: { defaultValue?: string }) {
   return (
     <div className='mb-2'>
-      <Label htmlFor={name} className='capitalize'>
+      <Label htmlFor={name} className='capitalize mb-1'>
         Categories
       </Label>
       <Select
@@ -20,13 +20,13 @@ function CategoriesInput({ defaultValue }: { defaultValue?: string }) {
         name={name}
         required
       >
-        <SelectTrigger id={name}>
+        <SelectTrigger id={name} className='cursor-pointer w-full'>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {categories.map((item) => {
             return (
-              <SelectItem key={item.label} value={item.label}>
+              <SelectItem key={item.label} value={item.label} className='cursor-pointer'>
                 <span className='flex items-center gap-2'>
                   <item.icon /> {item.label}
                 </span>
