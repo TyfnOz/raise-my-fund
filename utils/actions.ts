@@ -250,3 +250,14 @@ export const getBookmarks = async () => {
   });
   return bookmarks.map((bookmark) => bookmark.campaign);
 };
+
+export const getCampaignDetails = (id: string) => {
+  return db.campaign.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      profile: true,
+    },
+  });
+};
