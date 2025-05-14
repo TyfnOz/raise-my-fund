@@ -181,3 +181,72 @@ export const getCampaigns = async ({
   });
   return properties;
 };
+
+export const getBookmarkId = async ({
+  campaignId,
+}: {
+  campaignId: string;
+}) => {
+  const user = await getAuthUser();
+  const bookmark = await db.bookmark.findFirst({
+    where: {
+      campaignId,
+      profileId: user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+  return bookmark?.id || null;
+};
+
+export const toggleBookmarkAction = async (prevState: {
+  campaignId: string;
+  bookmarkId: string | null;
+  pathname: string;
+}) => {
+  const user = await getAuthUser();
+  const { campaignId, bookmarkId, pathname } = prevState;
+  try {
+    if (bookmarkId) {
+      await db.bookmark.delete({
+        where: {
+          id: bookmarkId,
+        },
+      });
+    } else {
+      await db.bookmark.create({
+        data: {
+          campaignId,
+          profileId: user.id,
+        },
+      });
+    }
+    revalidatePath(pathname);
+    return { message: bookmarkId ? 'Removed from Bookmarks' : 'Added to Bookmarks' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const getBookmarks = async () => {
+  const user = await getAuthUser();
+  const bookmarks = await db.bookmark.findMany({
+    where: {
+      profileId: user.id,
+    },
+    select: {
+      campaign: {
+        select: {
+          id: true,
+          name: true,
+          tagline: true,
+          price: true,
+          country: true,
+          image: true,
+        },
+      },
+    },
+  });
+  return bookmarks.map((bookmark) => bookmark.campaign);
+};
