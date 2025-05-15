@@ -16,8 +16,9 @@ model Profile {
   username     String
   email        String
   profileImage String
-  properties   Campaign[]
+  campaigns    Campaign[]
   bookmarks    Bookmark[]
+  comments     Comments[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -32,6 +33,7 @@ model Campaign {
   description String
   price       Int
   bookmarks   Bookmark[]
+  comments    Comments[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   profile     Profile    @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
@@ -39,13 +41,22 @@ model Campaign {
 }
 
 model Bookmark {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  profile   Profile @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
-  profileId String
-
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  profile    Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId  String
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
+}
+
+model Comments {
+  id         String   @id @default(uuid())
+  profile    Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId  String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+  comment    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
