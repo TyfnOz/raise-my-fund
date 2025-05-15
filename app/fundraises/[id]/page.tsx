@@ -3,7 +3,10 @@ import BreadCrumbs from '@/components/fundraises/BreadCrumbs';
 import { getCampaignDetails } from '@/utils/actions';
 import { redirect } from 'next/navigation';
 
-async function CampaignDetailsPage({ params }: { params: { id: string } }) {
+type Params = Promise<{ id: string }>
+
+async function CampaignDetailsPage(props:{params:Params}) {
+  const params = await props.params;
   const campaign = await getCampaignDetails(params.id);
   if (!campaign) redirect('/');
   return (
