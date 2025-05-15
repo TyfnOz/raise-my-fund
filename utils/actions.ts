@@ -4,7 +4,7 @@ import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import { campaignSchema, imageSchema, profileSchema, validateWithZodSchema } from './schemas';
+import { campaignSchema, createCommentSchema, imageSchema, profileSchema, validateWithZodSchema } from './schemas';
 import { uploadImage } from './supabase';
 
 const getAuthUser = async () => {
@@ -259,18 +259,89 @@ export const getCampaignDetails = async (id: string) => {
   });
 };
 
-export const createReviewAction = async () => {
-  return { message: 'create review' };
+export const createCommentAction = async (prevState: any, formData: FormData) => {
+  const user = await getAuthUser();
+  try {
+    const rawData = Object.fromEntries(formData);
+    const validatedFields = validateWithZodSchema(createCommentSchema, rawData);
+    await db.comments.create({
+      data: {
+        ...validatedFields,
+        profileId: user.id,
+      }
+    });
+    revalidatePath(`/fundraises/${validatedFields.campaignId}`);
+    return { message: 'Review submitted successfully.' };
+  } catch (error) {
+    return renderError(error);
+  }
 };
 
-export const fetchPropertyReviews = async () => {
-  return { message: 'fetch reviews' };
+export const getCampaignComments = async (campaignId: string) => {
+  const comments = await db.comments.findMany({
+    where: {
+      campaignId,
+    },
+    select: {
+      id: true,
+      comment: true,
+      profile: {
+        select: {
+          firstName: true,
+          profileImage: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return comments;
 };
 
-export const fetchPropertyReviewsByUser = async () => {
-  return { message: 'fetch user reviews' };
+export const getCampaignCommentsByUser = async () => {
+  const user = await getAuthUser();
+  const comments = await db.comments.findMany({
+    where: {
+      profileId: user.id,
+    },
+    select: {
+      id: true,
+      comment: true,
+      campaign: {
+        select: {
+          name: true,
+          image: true
+        }
+      }
+    }
+  });
+  return comments;
 };
 
-export const deleteReviewAction = async () => {
-  return { message: 'delete  reviews' };
+export const deleteCommentAction = async (prevState: { commentId: string }) => {
+  const { commentId } = prevState;
+  const user = await getAuthUser();
+  try {
+    await db.comments.delete({
+      where: {
+        id: commentId,
+        profileId: user.id
+      }
+    });
+    revalidatePath('/supportive-comments');
+    return { message: 'Review deleted successfully.' }
+  } catch (error) {
+    return renderError(error);
+  }
 };
+
+export const findExistingComment = async (userId: string, campaignId: string) => {
+  return db.comments.findFirst({
+    where: {
+      profileId: userId,
+      campaignId: campaignId,
+    }
+  });
+}

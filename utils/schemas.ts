@@ -67,3 +67,8 @@ export const campaignSchema = z.object({
   ),
   country: z.string(),
 });
+
+export const createCommentSchema = z.object({
+  campaignId: z.string(),
+  comment: z.string().min(10).max(1000),
+});
