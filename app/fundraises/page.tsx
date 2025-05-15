@@ -1,4 +1,9 @@
-function FundraisesPage() {
-    return <h1 className='text-3xl'>FundraisesPage</h1>;
+import React from 'react'
+
+function page() {
+  return (
+    <div>page</div>
+  )
 }
-export default FundraisesPage;
+
+export default page

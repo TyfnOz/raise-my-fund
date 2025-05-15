@@ -251,7 +251,7 @@ export const getBookmarks = async () => {
   return bookmarks.map((bookmark) => bookmark.campaign);
 };
 
-export const getCampaignDetails = (id: string) => {
+export const getCampaignDetails = async (id: string) => {
   return db.campaign.findUnique({
     where: {
       id,
@@ -260,4 +260,20 @@ export const getCampaignDetails = (id: string) => {
       profile: true,
     },
   });
+};
+
+export const createReviewAction = async () => {
+  return { message: 'create review' };
+};
+
+export const fetchPropertyReviews = async () => {
+  return { message: 'fetch reviews' };
+};
+
+export const fetchPropertyReviewsByUser = async () => {
+  return { message: 'fetch user reviews' };
+};
+
+export const deleteReviewAction = async () => {
+  return { message: 'delete  reviews' };
 };
