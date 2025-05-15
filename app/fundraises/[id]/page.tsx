@@ -4,6 +4,7 @@ import SubmitComment from '@/components/comments/SubmitComment';
 import BreadCrumbs from '@/components/fundraises/BreadCrumbs';
 import Description from '@/components/fundraises/Description';
 import ImageContainer from '@/components/fundraises/ImageContainer';
+import ShareButton from '@/components/fundraises/ShareButton';
 import UserInfo from '@/components/fundraises/UserInfo';
 import { Separator } from '@/components/ui/separator';
 import { findExistingComment, getCampaignDetails } from '@/utils/actions';
@@ -28,7 +29,7 @@ async function CampaignDetailsPage(props: { params: Params }) {
       <header className='flex justify-between items-center mt-4'>
         <h1 className='text-4xl font-bold '>{campaign.tagline}</h1>
         <div className='flex items-center gap-x-4'>
-          {/* share button */}
+          <ShareButton campaignId={campaign.id} name={campaign.name}/>
           <BookmarkToggleButton campaignId={campaign.id} />
         </div>
       </header>

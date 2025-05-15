@@ -19,6 +19,7 @@ model Profile {
   campaigns    Campaign[]
   bookmarks    Bookmark[]
   comments     Comments[]
+  donations    Donation[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }
@@ -34,6 +35,7 @@ model Campaign {
   price       Int
   bookmarks   Bookmark[]
   comments    Comments[]
+  donations   Donation[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   profile     Profile    @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
@@ -59,4 +61,16 @@ model Comments {
   comment    String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Donation {
+  id            String   @id @default(uuid())
+  profile       Profile  @relation(fields: [profileId], references: [clerkId], onDelete: Cascade)
+  profileId     String
+  campaign      Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId    String
+  orderTotal    Int
+  paymentStatus Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
