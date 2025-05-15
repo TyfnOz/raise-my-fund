@@ -156,7 +156,7 @@ export const getCampaigns = async ({
   search?: string;
   category?: string;
 }) => {
-  const properties = await db.campaign.findMany({
+  const campaigns = await db.campaign.findMany({
     where: {
       category,
       OR: [
@@ -172,8 +172,11 @@ export const getCampaigns = async ({
       image: true,
       price: true,
     },
+    orderBy: {
+      createdAt: 'desc',
+    }
   });
-  return properties;
+  return campaigns;
 };
 
 export const getBookmarkId = async ({
