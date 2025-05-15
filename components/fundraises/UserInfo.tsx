@@ -9,19 +9,23 @@ type UserInfoProps = {
 
 function UserInfo({ profile: { profileImage, firstName } }: UserInfoProps) {
   return (
-    <article className='grid grid-cols-[auto,1fr] gap-4 mt-4'>
-      <Image
-        src={profileImage}
-        alt={firstName}
-        width={50}
-        height={50}
-        className='rounded-md w-12 h-12 object-cover'
-      />
-      <div>
-        <p>
-          Created by
-          <span className='font-bold'> {firstName}</span>
-        </p>
+    <article className='mt-4'>
+      <div className='flex items-center gap-4'>
+        <Image
+          src={profileImage}
+          alt={firstName}
+          width={50}
+          height={50}
+          className='rounded w-12 h-12 object-cover'
+        />
+        <div>
+          <p>
+            Raised by <span className='font-bold'>{firstName}</span>
+          </p>
+          <p className='text-muted-foreground font-light'>
+            SuperRaiser &middot; 2 years raising
+          </p>
+        </div>
       </div>
     </article>
   );

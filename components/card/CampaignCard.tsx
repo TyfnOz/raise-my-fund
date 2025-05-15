@@ -16,7 +16,7 @@ function PropertyCard({ campaign }: { campaign: CampaignCardProps }) {
           <Image
             src={image}
             fill
-            sizes='(max-width:768px) 100vw, 50vw' 
+            sizes='(max-width:768px) 100vw, 50vw'
             alt={name}
             className='rounded-md object-cover transform group-hover:scale-110 
               transition-transform duration-500'/>
@@ -32,17 +32,13 @@ function PropertyCard({ campaign }: { campaign: CampaignCardProps }) {
         <div className='flex justify-between items-center mt-1'>
           <p className='text-sm mt-1 '>
             <span className='font-semibold'>{formatCurrency(price)} </span>
-            night
+            per donation
           </p>
-          {/* country and flag */}
           <CountryFlagAndName countryCode={country} />
         </div>
       </Link>
       <div className='absolute top-5 right-5 z-5'>
-        {/* bookmark toggle button */}
-        <div className='absolute top-5 right-5 z-5'>
-            <BookmarkToggleButton campaignId={campaignId} />
-        </div>
+        <BookmarkToggleButton campaignId={campaignId} />
       </div>
     </article>
   );

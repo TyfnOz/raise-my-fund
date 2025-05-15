@@ -34,7 +34,7 @@ async function CampaignDetailsPage(props: { params: Params }) {
       </header>
       <ImageContainer mainImage={campaign.image} name={campaign.name} />
       <section className="lg:grid lg:grid-cols-12 gap-x-12 mt-12">
-        <div className="lg:col-span-12">
+        <div className="lg:col-span-8">
           <div className="flex gap-x-4 items-center">
             <h1 className="text-xl font-bold">{campaign.name}</h1>
           </div>
