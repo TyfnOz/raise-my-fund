@@ -9,27 +9,24 @@ import { uploadImage } from './supabase';
 
 const getAuthUser = async () => {
   const user = await currentUser();
-  if (!user) {
-    throw new Error('You must be logged in to access this route');
-  }
-  if (!user.privateMetadata.hasProfile) redirect('/profile/create');
+  if (!user)
+    throw new Error('You must be logged in to acces this route.');
+  if (!user.privateMetadata.hasProfile)
+    redirect('/profile/create');
   return user;
 };
 
 const renderError = (error: unknown): { message: string } => {
   console.log(error);
   return {
-    message: error instanceof Error ? error.message : 'An error occurred',
+    message: error instanceof Error ? error.message : 'An error occurred.'
   };
-};
+}
 
-export const createProfileAction = async (
-  prevState: any,
-  formData: FormData
-) => {
+export const createProfileAction = async (prevState: any, formData: FormData) => {
   try {
     const user = await currentUser();
-    if (!user) throw new Error('Please login to create a profile');
+    if (!user) throw new Error('Please login to create a profile.');
 
     const rawData = Object.fromEntries(formData);
     const validatedFields = validateWithZodSchema(profileSchema, rawData);
@@ -39,8 +36,8 @@ export const createProfileAction = async (
         clerkId: user.id,
         email: user.emailAddresses[0].emailAddress,
         profileImage: user.imageUrl ?? '',
-        ...validatedFields,
-      },
+        ...validatedFields
+      }
     });
     await clerkClient.users.updateUserMetadata(user.id, {
       privateMetadata: {
@@ -48,9 +45,7 @@ export const createProfileAction = async (
       },
     });
   } catch (error) {
-    return {
-      message: error instanceof Error ? error.message : 'An error occurred',
-    };
+    return renderError(error);
   }
   redirect('/');
 };
@@ -61,44 +56,43 @@ export const fetchProfileImage = async () => {
 
   const profile = await db.profile.findUnique({
     where: {
-      clerkId: user.id,
+      clerkId: user.id
     },
     select: {
       profileImage: true,
-    },
+    }
   });
+
   return profile?.profileImage;
 };
 
 export const fetchProfile = async () => {
   const user = await getAuthUser();
-
   const profile = await db.profile.findUnique({
     where: {
-      clerkId: user.id,
-    },
+      clerkId: user.id
+    }
   });
-  if (!profile) return redirect('/profile/create');
+  if (!profile)
+    redirect('/profile/create');
   return profile;
 };
 
-export const updateProfileAction = async (
-  prevState: any,
-  formData: FormData
-): Promise<{ message: string }> => {
+export const updateProfileAction = async (prevState: any, formData: FormData): Promise<{ message: string }> => {
   const user = await getAuthUser();
+
   try {
     const rawData = Object.fromEntries(formData);
     const validatedFields = validateWithZodSchema(profileSchema, rawData);
 
     await db.profile.update({
       where: {
-        clerkId: user.id,
+        clerkId: user.id
       },
-      data: validatedFields,
+      data: validatedFields
     });
     revalidatePath('/profile');
-    return { message: 'Profile updated successfully' };
+    return { message: 'profile updated successfully.' };
   } catch (error) {
     return renderError(error);
   }
@@ -107,20 +101,20 @@ export const updateProfileAction = async (
 export const updateProfileImageAction = async (
   prevState: any,
   formData: FormData
-) => {
+): Promise<{ message: string }> => {
+
   const user = await getAuthUser();
   try {
     const image = formData.get('image') as File;
     const validatedFields = validateWithZodSchema(imageSchema, { image });
     const fullPath = await uploadImage(validatedFields.image);
-
     await db.profile.update({
       where: {
-        clerkId: user.id,
+        clerkId: user.id
       },
       data: {
-        profileImage: fullPath,
-      },
+        profileImage: fullPath
+      }
     });
     revalidatePath('/profile');
     return { message: 'Profile image updated successfully' };
