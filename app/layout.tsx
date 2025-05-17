@@ -4,6 +4,8 @@ import "./globals.css";
 import Providers from "./providers";
 import Navbar from "@/components/navbar/Navbar";
 import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +35,11 @@ export default function RootLayout({
         >
           <Providers>
             <Navbar />
-            <main className='container py-10'>{children}</main>
+            <main className='container py-10'>
+              {children}
+              <Analytics />
+              <SpeedInsights />
+            </main>
           </Providers>
         </body>
       </html>
