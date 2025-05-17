@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import Stats from '@/components/payments/Stats';
 
 async function PaymentsPage() {
   const payments = await getPayments();
@@ -22,6 +23,8 @@ async function PaymentsPage() {
   }
 
   return (
+    <>
+    <Stats />
     <div className='mt-16'>
       <h4 className='mb-4 capitalize'>
         total donations : {payments.length}
@@ -62,6 +65,7 @@ async function PaymentsPage() {
         </TableBody>
       </Table>
     </div>
+    </>
   );
 }
 export default PaymentsPage;

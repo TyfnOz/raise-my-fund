@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 
 import { campaignSchema, createCommentSchema, imageSchema, profileSchema, validateWithZodSchema } from './schemas';
 import { uploadImage } from './supabase';
+import { formatDate } from './format';
 
 const getAuthUser = async () => {
   const user = await currentUser();
@@ -356,6 +357,14 @@ export const createDonationAction = async (prevState: {
   campaignId: string;
 }) => {
   const user = await getAuthUser();
+  let donationId: null | string = null;
+
+  await db.donation.deleteMany({
+    where:{
+      profileId: user.id,
+      paymentStatus: false,
+    }
+  });
 
   const { campaignId } = prevState;
   const campaign = await db.campaign.findUnique({
@@ -375,10 +384,11 @@ export const createDonationAction = async (prevState: {
         campaignId,
       },
     });
+    donationId = donation.id;
   } catch (error) {
     return renderError(error);
   }
-  redirect('/donations');
+  redirect(`/checkout?donationId=${donationId}`);
 };
 
 export const getDonations = async () => {
@@ -386,6 +396,7 @@ export const getDonations = async () => {
   const donations = await db.donation.findMany({
     where: {
       profileId: user.id,
+      paymentStatus: true
     },
     include: {
       campaign: {
@@ -441,6 +452,7 @@ export const getOwnedCampaigns = async () => {
       const orderTotalSum = await db.donation.aggregate({
         where: {
           campaignId: campaign.id,
+          paymentStatus: true
         },
         _sum: {
           orderTotal: true,
@@ -547,6 +559,7 @@ export const getPayments = async () => {
 
   const payments = await db.donation.findMany({
     where: {
+      paymentStatus: true,
       campaign: {
         profileId: user.id,
       },
@@ -568,4 +581,83 @@ export const getPayments = async () => {
     },
   });
   return payments;
+};
+
+const getAdminUser = async () => {
+  const user = await getAuthUser();
+  if (user.id !== process.env.ADMIN_USER_ID) redirect('/');
+  return user;
+};
+
+export const getStats = async () => {
+  await getAdminUser();
+
+  const usersCount = await db.profile.count();
+  const campaignsCount = await db.campaign.count();
+  const donationsCount = await db.donation.count({
+    where:{
+      paymentStatus: true,
+    }
+  });
+
+  return {
+    usersCount,
+    campaignsCount,
+    donationsCount,
+  };
+};
+
+export const fetchChartsData = async () => {
+  await getAdminUser();
+  const date = new Date();
+  date.setMonth(date.getMonth() - 6);
+  const sixMonthsAgo = date;
+
+  const donations = await db.donation.findMany({
+    where: {
+      createdAt: {
+        gte: sixMonthsAgo,
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+  let donationsPerMonth = donations.reduce((total, current) => {
+    const date = formatDate(current.createdAt, true);
+
+    const existingEntry = total.find((entry) => entry.date === date);
+    if (existingEntry) {
+      existingEntry.count += 1;
+    } else {
+      total.push({ date, count: 1 });
+    }
+    return total;
+  }, [] as Array<{ date: string; count: number }>);
+  return donationsPerMonth;
+};
+
+export const getPaymentStats = async () => {
+  const user = await getAuthUser();
+  const campaigns = await db.campaign.count({
+    where: {
+      profileId: user.id,
+    },
+  });
+
+  const totals = await db.donation.aggregate({
+    _sum: {
+      orderTotal: true,
+    },
+    where: {
+      campaign: {
+        profileId: user.id,
+      },
+    },
+  });
+
+  return {
+    campaigns,
+    amount: totals._sum.orderTotal || 0,
+  };
 };

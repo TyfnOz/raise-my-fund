@@ -12,4 +12,5 @@ type NavLink = {
     { href: '/campaigns/create ', label: 'create campaign' },
     { href: '/campaigns', label: 'my campaigns' },
     { href: '/profile ', label: 'profile' },
+    { href: '/admin ', label: 'admin' },
   ];
