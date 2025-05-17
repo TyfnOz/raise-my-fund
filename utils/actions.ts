@@ -403,7 +403,7 @@ export const getDonations = async () => {
   return donations;
 };
 
-export async function deleteBookingAction(prevState: { donationId: string }) {
+export async function deleteDonationAction(prevState: { donationId: string }) {
   const { donationId } = prevState;
   const user = await getAuthUser();
 
