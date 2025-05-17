@@ -421,3 +421,151 @@ export async function deleteDonationAction(prevState: { donationId: string }) {
     return renderError(error);
   }
 }
+
+export const getOwnedCampaigns = async () => {
+  const user = await getAuthUser();
+  const campaigns = await db.campaign.findMany({
+    where: {
+      profileId: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      createdAt: true,
+    },
+  });
+
+  const campaignsWithDonationSums = await Promise.all(
+    campaigns.map(async (campaign) => {
+      const orderTotalSum = await db.donation.aggregate({
+        where: {
+          campaignId: campaign.id,
+        },
+        _sum: {
+          orderTotal: true,
+        },
+      });
+
+      return {
+        ...campaign,
+        orderTotalSum: orderTotalSum._sum.orderTotal,
+      };
+    })
+  );
+
+  return campaignsWithDonationSums;
+};
+
+export async function deleteCampaignAction(prevState: { campaignId: string }) {
+  const { campaignId } = prevState;
+  const user = await getAuthUser();
+
+  try {
+    await db.campaign.delete({
+      where: {
+        id: campaignId,
+        profileId: user.id,
+      },
+    });
+
+    revalidatePath('/campaigns');
+    return { message: 'Campaign deleted successfully' };
+  } catch (error) {
+    return renderError(error);
+  }
+}
+
+export const getFundraiseDetails = async (campaignId: string) => {
+  const user = await getAuthUser();
+
+  return db.campaign.findUnique({
+    where: {
+      id: campaignId,
+      profileId: user.id,
+    },
+  });
+};
+
+export const updateCampaignAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  const campaignId = formData.get('id') as string;
+
+  try {
+    const rawData = Object.fromEntries(formData);
+    const validatedFields = validateWithZodSchema(campaignSchema, rawData);
+    await db.campaign.update({
+      where: {
+        id: campaignId,
+        profileId: user.id,
+      },
+      data: {
+        ...validatedFields,
+      },
+    });
+
+    revalidatePath(`/campaigns/${campaignId}/edit`);
+    return { message: 'Update Successful' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const updateCampaignImageAction = async (
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string }> => {
+  const user = await getAuthUser();
+  const campaignId = formData.get('id') as string;
+
+  try {
+    const image = formData.get('image') as File;
+    const validatedFields = validateWithZodSchema(imageSchema, { image });
+    const fullPath = await uploadImage(validatedFields.image);
+
+    await db.campaign.update({
+      where: {
+        id: campaignId,
+        profileId: user.id,
+      },
+      data: {
+        image: fullPath,
+      },
+    });
+    revalidatePath(`/campaigns/${campaignId}/edit`);
+    return { message: 'Campaign Image Updated Successful' };
+  } catch (error) {
+    return renderError(error);
+  }
+};
+
+export const getPayments = async () => {
+  const user = await getAuthUser();
+
+  const payments = await db.donation.findMany({
+    where: {
+      campaign: {
+        profileId: user.id,
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    include: {
+      campaign: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          country: true,
+        },
+      },
+    },
+  });
+  return payments;
+};
