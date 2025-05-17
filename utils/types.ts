@@ -11,3 +11,8 @@ export type CampaignCardProps = {
   country: string;
   price: number;
 };
+
+export type Donation = {
+  orderTotal: number;
+  createdAt: Date;
+};

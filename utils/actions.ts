@@ -255,6 +255,12 @@ export const getCampaignDetails = async (id: string) => {
     },
     include: {
       profile: true,
+      donations: {
+        select: {
+          orderTotal: true,
+          createdAt: true
+        }
+      }
     },
   });
 };
@@ -344,4 +350,74 @@ export const findExistingComment = async (userId: string, campaignId: string) =>
       campaignId: campaignId,
     }
   });
+}
+
+export const createDonationAction = async (prevState: {
+  campaignId: string;
+}) => {
+  const user = await getAuthUser();
+
+  const { campaignId } = prevState;
+  const campaign = await db.campaign.findUnique({
+    where: { id: campaignId },
+    select: { price: true },
+  });
+  if (!campaign) {
+    return { message: 'campaign not found' };
+  }
+  const orderTotal = campaign.price * 1.1;
+
+  try {
+    const donation = await db.donation.create({
+      data: {
+        orderTotal,
+        profileId: user.id,
+        campaignId,
+      },
+    });
+  } catch (error) {
+    return renderError(error);
+  }
+  redirect('/donations');
+};
+
+export const getDonations = async () => {
+  const user = await getAuthUser();
+  const donations = await db.donation.findMany({
+    where: {
+      profileId: user.id,
+    },
+    include: {
+      campaign: {
+        select: {
+          id: true,
+          name: true,
+          country: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+  return donations;
+};
+
+export async function deleteBookingAction(prevState: { donationId: string }) {
+  const { donationId } = prevState;
+  const user = await getAuthUser();
+
+  try {
+    const result = await db.donation.delete({
+      where: {
+        id: donationId,
+        profileId: user.id,
+      },
+    });
+
+    revalidatePath('/donations');
+    return { message: 'Donate deleted successfully' };
+  } catch (error) {
+    return renderError(error);
+  }
 }

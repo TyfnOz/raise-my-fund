@@ -1,6 +1,7 @@
 import BookmarkToggleButton from '@/components/card/BookmarkToggleButton';
 import CampaignComments from '@/components/comments/CampaignComments';
 import SubmitComment from '@/components/comments/SubmitComment';
+import DonationWrapperClient from '@/components/donations/DonationWrapperClient';
 import BreadCrumbs from '@/components/fundraises/BreadCrumbs';
 import Description from '@/components/fundraises/Description';
 import ImageContainer from '@/components/fundraises/ImageContainer';
@@ -19,17 +20,17 @@ async function CampaignDetailsPage(props: { params: Params }) {
   if (!campaign) redirect('/');
   const firstName = campaign.profile.firstName;
   const profileImage = campaign.profile.profileImage;
-  const {userId} = auth();
+  const { userId } = auth();
   const isNotOwner = campaign.profile.clerkId !== userId;
-  const reviewDoesNotExist = userId && isNotOwner 
-        && !(await findExistingComment(userId,campaign.id));
+  const reviewDoesNotExist = userId && isNotOwner
+    && !(await findExistingComment(userId, campaign.id));
   return (
     <section>
       <BreadCrumbs name={campaign.name} />
       <header className='flex justify-between items-center mt-4'>
         <h1 className='text-4xl font-bold '>{campaign.tagline}</h1>
         <div className='flex items-center gap-x-4'>
-          <ShareButton campaignId={campaign.id} name={campaign.name}/>
+          <ShareButton campaignId={campaign.id} name={campaign.name} />
           <BookmarkToggleButton campaignId={campaign.id} />
         </div>
       </header>
@@ -43,9 +44,16 @@ async function CampaignDetailsPage(props: { params: Params }) {
           <Separator className="mt-4" />
           <Description description={campaign.description} />
         </div>
+        <div className="lg:col-span-4 flex flex-col items-center">
+          <DonationWrapperClient
+            campaignId={campaign.id}
+            price={campaign.price}
+            donations={campaign.donations}
+          />
+        </div>
       </section>
-      {reviewDoesNotExist && <SubmitComment campaignId={campaign.id}/>}
-        <CampaignComments campaignId={campaign.id}/>
+      {reviewDoesNotExist && <SubmitComment campaignId={campaign.id} />}
+      <CampaignComments campaignId={campaign.id} />
     </section>
   );
 }
